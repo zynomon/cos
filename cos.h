@@ -18,9 +18,10 @@
 #include <limits.h>
 #include <execinfo.h>
 #endif
-
-
-std::string irs = "\n\n▒▒▒█   ▒▒▒█   ▒▒▒█   █▒▒█   █▒▒▒   █▒▒▒   █▒▒▒   █▒▒▒\n\n"; // irs = irregular-separator ugly af ikr
+inline const std::string& irs() {
+    static const std::string irs = "\n\n▒▒▒█   ▒▒▒█   ▒▒▒█   █▒▒█   █▒▒▒   █▒▒▒   █▒▒▒   █▒▒▒\n\n";
+    return irs;
+}
 
 struct CrashInfo {
     std::string signalName;
@@ -46,13 +47,11 @@ struct CrashInfo {
     }
 };
 
-
 class COS {
 public:
     using CrashCallback = std::function<void(const CrashInfo&)>;
 
 private:
-
     std::stringstream capturedOutput;
     std::streambuf* originalCoutBuffer;
     std::streambuf* originalCerrBuffer;
@@ -65,7 +64,7 @@ private:
 
     std::chrono::system_clock::time_point startTimePoint;
 
-    static COS* globalInstance;
+    inline static COS* globalInstance = nullptr;
 
     class TeeStreambuf : public std::streambuf {
     private:
@@ -232,7 +231,7 @@ private:
 #ifndef _WIN32
         stackTrace = captureStackTrace();
         if (!stackTrace.empty()) {
-            std::cout << "\n The Crash Signal  Trace; " << irs << stackTrace << irs ;
+            std::cout << "\n The Crash Signal  Trace; " << irs() << stackTrace << irs() ;
         }
 #endif
 
@@ -337,7 +336,7 @@ public:
                     << capturedOutput.str();
 
             if (!stackTrace.empty()) {
-                logFile  <<" THE SIGNAL FAULT STACK TRACE :" << irs << stackTrace << irs;
+                logFile  <<" THE SIGNAL FAULT STACK TRACE :" << irs() << stackTrace << irs();
             }
 
             logFile.close();
@@ -353,8 +352,6 @@ public:
     COS(const COS&) = delete;
     COS& operator=(const COS&) = delete;
 };
-
-COS* COS::globalInstance = nullptr;
 
 
 #endif // COS_H

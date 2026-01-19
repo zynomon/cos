@@ -1,71 +1,44 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(crash-organizer-service VERSION 0.1 LANGUAGES CXX)
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+project(trigonometry VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
-
-set(PROJECT_SOURCES
-        cosec.cpp
-
-
-
-)
-
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(crash-organizer-service
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-        cos.h
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET crash-organizer-service APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(crash-organizer-service SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(crash-organizer-service
-            ${PROJECT_SOURCES}
-        )
-    endif()
-endif()
-
-target_link_libraries(crash-organizer-service PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.crash-organizer-service)
-endif()
-set_target_properties(crash-organizer-service PROPERTIES
-    ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
-
 include(GNUInstallDirs)
-install(TARGETS crash-organizer-service
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+
+add_library(cos SHARED cos.cpp cos.h)
+target_link_libraries(cos PRIVATE Qt6::Core Qt6::Widgets)
+
+add_library(cosec SHARED cosec.cpp cosec.h)
+target_link_libraries(cosec PRIVATE Qt6::Core Qt6::Widgets)
+
+install(TARGETS cos cosec
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/trigonometry
 )
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(crash-organizer-service)
-endif()
+install(FILES cos.h cosec.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/trigonometry
+)
+
+include(InstallRequiredSystemLibraries)
+
+set(CPACK_PACKAGE_NAME "trigonometry")
+set(CPACK_PACKAGE_VENDOR "error.os")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    " lib trigonometry is a library"
+)
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH 0)
+
+set(CPACK_PACKAGE_CONTACT "Zynomon Aelius <zynomon@proton.me>")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Zynomon Aelius")
+
+set(CPACK_GENERATOR "DEB;TGZ;ZIP")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libqt6core6, libqt6gui6, libqt6widgets6")
+
+include(CPack)
+
