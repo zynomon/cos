@@ -134,7 +134,7 @@ private:
         std::string exeName = (pos == std::string::npos) ? fullPath : fullPath.substr(pos + 1);
         size_t extPos = exeName.find_last_of('.');
         if (extPos != std::string::npos) {
-            exeName.resize(extPos);
+            exeName = exeName.substr(0, extPos);
         }
         return exeName;
 #else

@@ -2,6 +2,7 @@
 #define COSEC_H
 
 #include "cos.h"
+#include <QMainWindow>
 #include <QPushButton>
 #include <QLabel>
 #include <QToolBox>
@@ -20,7 +21,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QTimer>
-#include <QtWidgets/QMainWindow>
+#include <iostream>
 
 class COSEC;
 

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+normal_install() {
+    rm -rf /usr/include/trigonometry
+}
+
+echo "Final step,"
+
+timeout=3
+trap "echo; answer='n'" TIMEOUT  # Handle timeout
+
+(
+    for ((i=timeout; i>0; i--)); do
+        printf "\rAre you Installing \"libtrigonometry\" for developing? (y/n) [%ds]" $i
+        sleep 1
+    done
+    kill -TERM $$  # Trigger timeout
+) &
+
+read -n 1 answer 2>/dev/null
+wait  # Cleanup timer process
+
+if [[ "${answer,,}" == "y" ]]; then
+    echo -e "\n"
+else
+    normal_install
+fi
+
+echo "Finalizing..."

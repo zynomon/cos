@@ -1,0 +1,10 @@
+Architecture: amd64
+Depends: libc6, libqt6core6, libqt6gui6, libqt6widgets6
+Description: libtrigonometry Contains COS and COSEC (Qt) <crash handling libraries for error.os>
+Maintainer: Zynomon Aelius
+Package: libtrigonometry
+Priority: optional
+Section: devel
+Version: 1.0.0
+Installed-Size: 72
+
