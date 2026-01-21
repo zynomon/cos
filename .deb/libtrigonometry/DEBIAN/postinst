@@ -1,29 +1,35 @@
 #!/bin/bash
 
 normal_install() {
+echo "Configuring.."
     rm -rf /usr/include/trigonometry
+   sudo ldconfig
 }
 
-echo "Final step,"
+finalize() {
+    echo "Finalizing..."
+}
 
-timeout=3
-trap "echo; answer='n'" TIMEOUT  # Handle timeout
+case "$1" in
+    configure)
+        echo "Final step,"
 
-(
-    for ((i=timeout; i>0; i--)); do
-        printf "\rAre you Installing \"libtrigonometry\" for developing? (y/n) [%ds]" $i
-        sleep 1
-    done
-    kill -TERM $$  # Trigger timeout
-) &
+        timeout=5
+        answer="n"
 
-read -n 1 answer 2>/dev/null
-wait  # Cleanup timer process
+        # Prompt with timeout (defaults to "n" if no input)
+        echo -n "Do you want to install libtrigonometry headers for development? (y/n) "
+        if read -t "$timeout" -n 1 reply 2>/dev/null; then
+            answer="$reply"
+        fi
+        echo
 
-if [[ "${answer,,}" == "y" ]]; then
-    echo -e "\n"
-else
-    normal_install
-fi
+        if [[ "${answer,,}" == "y" ]]; then
+            sudo ldconfig
+        else
+            normal_install
+        fi
 
-echo "Finalizing..."
+        finalize
+        ;;
+esac
