@@ -1,0 +1,14 @@
+:-1: error: CMakeFiles/untitled.dir/main.cpp.o: in function `COSEC::COSEC(CrashInfo const&, QString const&, QIcon const&, QString const&)':
+/usr/bin/ld: CMakeFiles/untitled.dir/main.cpp.o: in function `COSEC::COSEC(CrashInfo const&, QString const&, QIcon const&, QString const&)':
+/usr/include/trigonometry/crash/cosec.h:348:(.text._ZN5COSECC2ERK9CrashInfoRK7QStringRK5QIconS5_[_ZN5COSECC2ERK9CrashInfoRK7QStringRK5QIconS5_]+0x44): undefined reference to `vtable for COSEC'
+:-1: error: CMakeFiles/untitled.dir/main.cpp.o: in function `void QtPrivate::assertObjectType<COSEC>(QObject*)':
+/usr/bin/ld: CMakeFiles/untitled.dir/main.cpp.o: in function `void QtPrivate::assertObjectType<COSEC>(QObject*)':
+/usr/include/x86_64-linux-gnu/qt6/QtCore/qobjectdefs_impl.h:130:(.text._ZN9QtPrivate16assertObjectTypeI5COSECEEvP7QObject[_ZN9QtPrivate16assertObjectTypeI5COSECEEvP7QObject]+0x24): undefined reference to `COSEC::staticMetaObject'
+:-1: error: CMakeFiles/untitled.dir/main.cpp.o: in function `QtPrivate::assertObjectType<COSEC>(QObject*)::{lambda(QObject*)#3}::operator()(QObject*) const':
+/usr/bin/ld: CMakeFiles/untitled.dir/main.cpp.o: in function `QtPrivate::assertObjectType<COSEC>(QObject*)::{lambda(QObject*)#3}::operator()(QObject*) const':
+/usr/include/x86_64-linux-gnu/qt6/QtCore/qobjectdefs_impl.h:125:(.text._ZZN9QtPrivate16assertObjectTypeI5COSECEEvP7QObjectENKUlS3_E1_clES3_[_ZZN9QtPrivate16assertObjectTypeI5COSECEEvP7QObjectENKUlS3_E1_clES3_]+0x2c): undefined reference to `typeinfo for COSEC'
+:-1: error: linker command failed with exit code 1 (use -v to see invocation)
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+gmake[2]: *** [CMakeFiles/untitled.dir/build.make:130: untitled] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:90: CMakeFiles/untitled.dir/all] Error 2
+gmake: *** [Makefile:136: all] Error 2

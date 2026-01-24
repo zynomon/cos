@@ -1,4 +1,3 @@
-
 set(TRIG_INCLUDE_DIR "/usr/include/trigonometry")
 set(TRIG_LIB_DIR "/usr/lib/trigonometry")
 
@@ -23,11 +22,12 @@ endforeach()
 
 #    /--------------------------
 #
-#                                            <zynomon@proton.me>
+#                                                           Zynomon aelius ©️  2026
+#                                                           <zynomon@proton.me>
 #                       add,
 #  
 #                                     include(/usr/lib/cmake/Trig/TrigConfig.cmake)
 #  
-#                                                                                                in your cmake
+#                                                                                                                in your CMakeLists.txt
 #
-#                                                                                                            -----------------------/
+#                                                                                                                           -----------------------/
