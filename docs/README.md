@@ -1,63 +1,52 @@
-<h1> CURRENTLY UNDER CONSTRUCTION AND NOT BATTLE TESTED WAIT FEW DAYS </h1>
-<img width="1280" height="800" alt="test-os-for-trig" src="https://github.com/user-attachments/assets/0f83521a-bf36-4622-b548-38fc28ab3491" />
-# libtrigonometry
-is nothing but a fun project also my way to learn more about unix shared  Library
-
-
-# `libtrigonometry`Contains for now, 
-COS (**central output service**) 
-COSEC ( **crash output servicer** and **easy calibrator** ) 
-
-
-with  .so files and  fully configured cmake for it. 
-
-also there is a   .deb folder in this repo make sure to know that that's for those who wants to install in debian and don't wanna configure anymore also that's the source code, 
+# Libtrigonometry
 
 ---
 
-as for development, 
-type
-#include <COS> or #include <trigonometry/COS> to include it as a header
-benifits? 
-- outputting the application output into a logger 
-- when started finished with time stamps 
-- A crash recognizer
-- Few signals to use as a gui application. a fully featured restart, terminate flag that is free form any frameworks  [  Trig_term();  Trig_reset();  ] 
+libtrigonometry is a lightweight linux library, it uses qt and c++ , that tends to contain 6 header ( not much ) 
 
-, 
+so what are already created? 
+---
+
+## COS <sub>character output streambuffer</sub>  
+#### Technology : Raw C++ 
+#### OS : Linux, BSD ( havent tested ) , MAC ( havent tested ) , WINDOWS ( havent tested )
+#### CMAKE LINKING ID : crash (link in cmake using  Trig::crash )
+
+__***Description:***__  automatically captures all application output and handles fatal signals. It works by intercepting stdout and stderr streams using a custom TeeStreambuf implementation, simultaneously displaying output to the console while recording it to a timestamped log file in the system's temporary directory.
+When initialized, COS sets up signal handlers for all major crash signals (SIGSEGV, SIGABRT, SIGFPE, SIGILL, SIGBUS, etc.) and begins monitoring the application. On Unix/Linux systems, it captures full stack traces using backtrace() when crashes occur. The logger tracks session duration with centisecond precision and generates comprehensive crash reports.
 
 
-### COSEC;
-cosec is the popup gui window for crashed application it uses the signal given by cos and uses it for gui overview it heavily uses qt and also not that well structured. 
+__***Common uses:***__  COS emits some public signals that are maybe useful,
+```cpp
+// Restart application cleanly
+COS::Tri_reset();  // Launches new instance and terminates current one
+
+// Terminate application cleanly
+COS::Tri_term();   // Resets signal handlers and exits gracefully
+
+// Manual log save (if needed before normal exit)
+logger.saveLog("User requested shutdown");
+
+// Access crash information
+logger.getExecutableName();  // Returns binary name
+logger.getLogPath();         // Returns log file path
+logger.getStartTime();       // Returns session start timestamp
+logger.getStackTrace();      // Returns captured stack trace (if any)
+logger.getLogContent();      // Returns all captured output
+```
+
+
+## COSEC <sub>Crash output stream executor</sub>  
+#### Technology : Qt6 + C++
+#### OS : Linux, BSD ( havent tested ) , MAC ( havent tested ) , WINDOWS ( havent tested )
+#### CMAKE LINKING ID : crash (link in cmake using  Trig::crash )
+
+__***Description:***__ captures cos and executes a gui crash reporter
+__***Screenshots:**__ This application fetches icon for the window , and more.
 <img width="729" height="515" alt="image" src="https://github.com/user-attachments/assets/042bda71-a8e7-481e-a31d-74771b2480ed" />
 <img width="766" height="519" alt="image" src="https://github.com/user-attachments/assets/2d54f818-f633-4888-82e0-c5d97fab7cbe" />
 <img width="765" height="522" alt="image" src="https://github.com/user-attachments/assets/437b912f-4a0c-42a4-84a0-21db0e34340f" />
 
-use 
-#include <COSEC>
-and in your mainwindow class add
-
-REG_CRASH(); 
-it means register for crash utilities operation ( 
-but remember, it uses qt for gui so then, you will need dev-qt6-core. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+**more coming soon..***
+---
+ 
