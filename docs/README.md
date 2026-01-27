@@ -47,6 +47,15 @@ __***Screenshots:**__ This application fetches icon for the window , and more.
 <img width="766" height="519" alt="image" src="https://github.com/user-attachments/assets/2d54f818-f633-4888-82e0-c5d97fab7cbe" />
 <img width="765" height="522" alt="image" src="https://github.com/user-attachments/assets/437b912f-4a0c-42a4-84a0-21db0e34340f" />
 
+
+
+### steps;
+0. download from here ; coming soon.. wait a day
+1. type `find_packages(Trig)`
+2. Link yout project against `Trig::crash` ( crash means bundle with cos and cosec )
+3. use `#include cosec` in your project
+4. in your mainwindowclass ( where your window title defined, add a line `REG_CRASH();` that's it
+
 **more coming soon..***
 ---
  
