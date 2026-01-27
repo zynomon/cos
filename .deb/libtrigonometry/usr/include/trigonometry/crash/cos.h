@@ -17,6 +17,9 @@
 #include <unistd.h>
 #include <limits.h>
 #include <execinfo.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 #endif
 inline const std::string& irs() {
     static const std::string irs = "\n\n▒▒▒█   ▒▒▒█   ▒▒▒█   █▒▒█   █▒▒▒   █▒▒▒   █▒▒▒   █▒▒▒\n\n";
@@ -86,6 +89,7 @@ private:
         inline std::streamsize xsputn(const char* s, std::streamsize n) override {
             console->sputn(s, n);
             captureBuffer->sputn(s, n);
+            console->pubsync();
             return n;
         }
     };
@@ -134,7 +138,7 @@ private:
         std::string exeName = (pos == std::string::npos) ? fullPath : fullPath.substr(pos + 1);
         size_t extPos = exeName.find_last_of('.');
         if (extPos != std::string::npos) {
-            exeName.resize(extPos);
+            exeName = exeName.substr(0, extPos);
         }
         return exeName;
 #else
@@ -348,6 +352,134 @@ public:
     inline const std::string& getStartTime() const { return startTime; }
     inline const std::string& getStackTrace() const { return stackTrace; }
     inline std::string getLogContent() const { return capturedOutput.str(); }
+
+    static void Tri_reset() {
+        if (globalInstance) {
+            globalInstance->saveLog("Application restart initiated");
+        }
+
+#ifdef _WIN32
+
+        char exePath[MAX_PATH];
+        GetModuleFileNameA(NULL, exePath, MAX_PATH);
+
+        STARTUPINFOA si = { sizeof(si) };
+        PROCESS_INFORMATION pi;
+
+        if (CreateProcessA(
+                exePath,
+
+                NULL,
+
+                NULL,
+
+                NULL,
+
+                FALSE,
+
+                DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
+
+                NULL,
+
+                NULL,
+
+                &si,
+
+                &pi
+
+                )) {
+
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+
+            Sleep(100);
+        } else {
+            if (globalInstance) {
+                globalInstance->saveLog("Failed to restart application");
+            }
+        }
+
+#else
+
+        pid_t pid = fork();
+
+        if (pid == 0) {
+
+            setsid();
+
+            pid_t pid2 = fork();
+            if (pid2 > 0) {
+
+                _exit(0);
+            } else if (pid2 == 0) {
+
+                chdir("/");
+
+                close(STDIN_FILENO);
+                close(STDOUT_FILENO);
+                close(STDERR_FILENO);
+
+                open("/dev/null", O_RDONLY);
+
+                open("/dev/null", O_WRONLY);
+
+                open("/dev/null", O_WRONLY);
+
+                for (int fd = 3; fd < 1024; fd++) {
+                    close(fd);
+                }
+
+                execl("/proc/self/exe", "/proc/self/exe", (char*)NULL);
+
+                _exit(127);
+            } else {
+
+                _exit(1);
+            }
+        } else if (pid > 0) {
+
+            waitpid(pid, NULL, 0);
+
+            usleep(100000);
+
+        } else {
+
+            if (globalInstance) {
+                globalInstance->saveLog("Failed to fork for restart");
+            }
+        }
+#endif
+
+        Tri_term();
+        exit(0);
+
+    }
+
+    static void Tri_term() {
+
+        signal(SIGTERM, SIG_DFL);
+        signal(SIGINT, SIG_DFL);
+        signal(SIGABRT, SIG_DFL);
+        signal(SIGFPE, SIG_DFL);
+        signal(SIGILL, SIG_DFL);
+        signal(SIGSEGV, SIG_DFL);
+#ifndef _WIN32
+        signal(SIGBUS, SIG_DFL);
+        signal(SIGQUIT, SIG_DFL);
+        signal(SIGTRAP, SIG_DFL);
+#endif
+
+        if (globalInstance) {
+            delete globalInstance;
+            globalInstance = nullptr;
+        }
+
+#ifdef _WIN32
+        ExitProcess(0);
+#else
+        _exit(0);
+#endif
+    }
 
     COS(const COS&) = delete;
     COS& operator=(const COS&) = delete;

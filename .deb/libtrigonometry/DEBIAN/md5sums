@@ -1,6 +1,6 @@
-be6999a0ae8808314f89ec7d3ed2f96d  usr/include/trigonometry/cos
-be6999a0ae8808314f89ec7d3ed2f96d  usr/include/trigonometry/cosec
-f29e954d64523b4298954964b5fcf0a0  usr/lib/trigonometry/libcos.so
-f7bb8f413ead1efe0a21380f07ac3e97  usr/include/trigonometry/cosec.h
-f8c9ab47bc2a55d8f717747d2c9854f4  usr/lib/trigonometry/libcosec.so
-usr/include/trigonometry/cos.h ../usr/include/trigonometry/cosec.h ../usr/include/trigonometry/cos ../usr/include/trigonometry/cosec ../usr/lib/trigonometry/libcos.so ../usr/lib/trigonometry/libcosec.so 6f9a2f3144566bf0ce26aa63fd99ed91  ../usr/include/trigonometry/cos.h
+3d2a1f90219c1587df646fab478b8e46  usr/include/trigonometry/crash/cos
+ae0f75884d44028568727485cbb4d9a7  usr/include/trigonometry/crash/cos.h
+be6999a0ae8808314f89ec7d3ed2f96d  usr/include/trigonometry/crash/cosec
+39581ec8c2619e12c50449b98116b5e6  usr/include/trigonometry/crash/cosec.h
+3749ee9ffe7b2ca28339300feac816df  usr/lib/cmake/Trig/TrigConfig.cmake
+0aa177df500aa94764a66f85631fea1e  usr/lib/trigonometry/libcrash.so

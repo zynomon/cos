@@ -2,6 +2,7 @@
 #define COSEC_H
 
 #include "cos.h"
+#include <QMainWindow>
 #include <QPushButton>
 #include <QLabel>
 #include <QToolBox>
@@ -16,11 +17,9 @@
 #include <QFile>
 #include <QDir>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QMessageBox>
-#include <QProcess>
 #include <QTimer>
-#include <QtWidgets/QMainWindow>
+#include <iostream>
 
 class COSEC;
 
@@ -69,10 +68,9 @@ public:
     CrashOrgMan& operator=(const CrashOrgMan&) = delete;
 };
 
-#define COSEC_REGISTER_WINDOW() CrashOrgMan::instance().registerWindow(this)
+#define REG_CRASH() CrashOrgMan::instance().registerWindow(this)
 
 class COSEC : public QDialog {
-    Q_OBJECT
 
 private:
     CrashInfo crashInfo;
@@ -82,8 +80,9 @@ private:
 
     inline void setupUI() {
         setWindowTitle(QString::fromStdString(crashInfo.executableName) + " - Crash Report");
-        setMinimumSize(700, 450);
-        resize(850, 550);
+        setMinimumSize(400, 350);
+        resize(750, 480);
+        setWindowIcon(QIcon::fromTheme("folder-crash-symbolic"));
         setAttribute(Qt::WA_DeleteOnClose);
 
         QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -103,120 +102,142 @@ private:
 
     inline QWidget* createLogsPage() {
         QWidget* page = new QWidget();
-        QVBoxLayout* layout = new QVBoxLayout(page);
-        layout->setContentsMargins(15, 15, 15, 15);
-        layout->setSpacing(10);
+        QVBoxLayout* outerLayout = new QVBoxLayout(page);
+        outerLayout->setContentsMargins(15, 15, 15, 15);
+        outerLayout->setSpacing(12);
 
-        layout->addWidget(new QLabel("<b>Full Application Logs</b>"));
+        outerLayout->addWidget(new QLabel("<h3>Full Application Logs</h3>"));
+
+        QHBoxLayout* mainLayout = new QHBoxLayout();
+        mainLayout->setSpacing(20);
 
         QTextEdit* logText = new QTextEdit();
         logText->setReadOnly(true);
         logText->setPlainText(QString::fromStdString(crashInfo.logContent));
         logText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        logText->setMinimumHeight(200);
         logText->setFont(QFont("Monospace", 9));
-        layout->addWidget(logText, 1);
 
-        QHBoxLayout* btnLayout = new QHBoxLayout();
-        btnLayout->setSpacing(10);
+        QWidget* buttonsWidget = new QWidget();
+        buttonsWidget->setFixedWidth(120);
+        QVBoxLayout* buttonsLayout = new QVBoxLayout(buttonsWidget);
+        buttonsLayout->setContentsMargins(0, 0, 0, 0);
+        buttonsLayout->setSpacing(10);
 
-        QPushButton* copyBtn = new QPushButton("Copy to Clipboard");
+        QPushButton* copyBtn = new QPushButton("Copy");
         copyBtn->setIcon(QIcon::fromTheme("edit-copy"));
-        copyBtn->setMinimumWidth(130);
+        copyBtn->setMinimumHeight(20);
+        copyBtn->setMinimumWidth(20);
+        copyBtn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
         connect(copyBtn, &QPushButton::clicked, [logText]() {
             QApplication::clipboard()->setText(logText->toPlainText());
             QMessageBox::information(nullptr, "Copied", "Logs copied to clipboard.");
         });
 
-        QPushButton* saveBtn = new QPushButton("Save As...");
+        QPushButton* saveBtn = new QPushButton("Save");
         saveBtn->setIcon(QIcon::fromTheme("document-save"));
-        saveBtn->setMinimumWidth(120);
-        connect(saveBtn, &QPushButton::clicked, this, &COSEC::saveLogAs);
+        saveBtn->setMinimumHeight(20);
+        saveBtn->setMinimumWidth(20);
+        saveBtn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+        connect(saveBtn, &QPushButton::clicked, [this]() {
+            QString ts = QString::fromStdString(crashInfo.timestamp)
+            .replace("/", "").replace(" ", "_").replace(":", "");
 
-        QPushButton* openBtn = new QPushButton("Open Log Folder");
+            QString defName = QString::fromStdString(crashInfo.executableName) + "_crash_" + ts + ".log";
+            QString fname = QFileDialog::getSaveFileName(this, "Save Crash Log As",
+                                                         QDir::homePath() + "/" + defName, "Log Files (*.log);;All Files (*)");
+
+            if (!fname.isEmpty()) {
+                QFile::copy(QString::fromStdString(crashInfo.logPath), fname) ?
+                    QMessageBox::information(this, "Success", "Log file saved successfully.") :
+                    QMessageBox::warning(this, "Error", "Failed to save log file.");
+            }
+        });
+
+        QPushButton* openBtn = new QPushButton("Folder");
         openBtn->setIcon(QIcon::fromTheme("folder-open"));
-        openBtn->setMinimumWidth(140);
-        connect(openBtn, &QPushButton::clicked, this, &COSEC::openLogFolder);
+        openBtn->setMinimumHeight(20);
+        openBtn->setMinimumWidth(20);
 
-        btnLayout->addWidget(copyBtn);
-        btnLayout->addWidget(saveBtn);
-        btnLayout->addWidget(openBtn);
-        btnLayout->addStretch();
+        openBtn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+        connect(openBtn, &QPushButton::clicked, [this]() {
+            QFileInfo fi(QString::fromStdString(crashInfo.logPath));
+            if (!QDesktopServices::openUrl(QUrl::fromLocalFile(fi.absolutePath()))) {
+                QMessageBox::warning(this, "Error", "Failed to open log folder.");
+            }
+        });
 
-        layout->addLayout(btnLayout);
+        buttonsLayout->addWidget(copyBtn, 1);
+        buttonsLayout->addWidget(saveBtn, 1);
+        buttonsLayout->addWidget(openBtn, 1);
+
+        mainLayout->addWidget(buttonsWidget);
+        mainLayout->addWidget(logText, 1);
+        outerLayout->addLayout(mainLayout, 1);
+
         return page;
     }
-
     inline QWidget* createDetailsPage() {
         QWidget* page = new QWidget();
-        QVBoxLayout* layout = new QVBoxLayout(page);
-        layout->setContentsMargins(15, 15, 15, 15);
-        layout->setSpacing(15);
+        QHBoxLayout* mainLayout = new QHBoxLayout(page);
+        mainLayout->setContentsMargins(15, 15, 15, 15);
+        mainLayout->setSpacing(20);
 
-        QHBoxLayout* topLayout = new QHBoxLayout();
-        topLayout->setSpacing(20);
+        QWidget* leftWidget = new QWidget();
+        QVBoxLayout* leftLayout = new QVBoxLayout(leftWidget);
+        leftLayout->setContentsMargins(0, 0, 0, 0);
+        leftLayout->setSpacing(15);
+        leftLayout->setAlignment(Qt::AlignTop);
 
         QLabel* iconLabel = new QLabel();
         iconLabel->setPixmap(windowIcon.isNull() ?
                                  QIcon::fromTheme("dialog-error").pixmap(128, 128) :
                                  windowIcon.pixmap(128, 128));
-        iconLabel->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
-        iconLabel->setFixedSize(140, 140);
-        topLayout->addWidget(iconLabel);
+        iconLabel->setFixedSize(180, 180);
+        leftLayout->addWidget(iconLabel, 0, Qt::AlignLeft);
 
-        QWidget* infoWidget = new QWidget();
-        QVBoxLayout* infoLayout = new QVBoxLayout(infoWidget);
-        infoLayout->setSpacing(8);
-        infoLayout->setContentsMargins(0, 0, 0, 0);
-
-        infoLayout->addWidget(new QLabel("<h3>Application Crashed</h3>"));
+        leftLayout->addWidget(new QLabel("<h3>This application has been crashed</h3>"));
 
         QLabel* sigLabel = new QLabel("<b>Signal:</b> " + QString::fromStdString(crashInfo.signalName));
         sigLabel->setWordWrap(true);
-        infoLayout->addWidget(sigLabel);
+        leftLayout->addWidget(sigLabel);
 
         QLabel* binLabel = new QLabel("<b>Binary:</b> " + QString::fromStdString(crashInfo.executableName));
         binLabel->setWordWrap(true);
-        infoLayout->addWidget(binLabel);
+        leftLayout->addWidget(binLabel);
 
         if (!windowTitle.isEmpty()) {
             QLabel* titleLabel = new QLabel("<b>Window Title:</b> " + windowTitle);
             titleLabel->setWordWrap(true);
-            infoLayout->addWidget(titleLabel);
+            leftLayout->addWidget(titleLabel);
         }
 
-        infoLayout->addStretch();
-        topLayout->addWidget(infoWidget, 1);
-        layout->addLayout(topLayout);
+        leftLayout->addStretch();
+        mainLayout->addWidget(leftWidget, 1);
 
-        layout->addWidget(new QLabel("<b>Session Information</b>"));
+        QWidget* rightWidget = new QWidget();
+        QVBoxLayout* rightLayout = new QVBoxLayout(rightWidget);
+        rightLayout->setContentsMargins(0, 0, 0, 0);
+        rightLayout->setSpacing(15);
+        rightLayout->setAlignment(Qt::AlignTop);
 
-        QWidget* detailsWidget = new QWidget();
-        QVBoxLayout* detailsLayout = new QVBoxLayout(detailsWidget);
-        detailsLayout->setSpacing(8);
-        detailsLayout->setContentsMargins(10, 5, 10, 5);
+        rightLayout->addWidget(new QLabel("<h4>Session Informations</h4>"));
+        rightLayout->addWidget(new QLabel("<hr>"));
 
         auto addDetail = [&](const char* label, const QString& value) {
             QLabel* lbl = new QLabel(QString("<b>%1:</b> %2").arg(label).arg(value));
             lbl->setWordWrap(true);
             lbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
-            detailsLayout->addWidget(lbl);
+            rightLayout->addWidget(lbl);
         };
 
         addDetail("Started", QString::fromStdString(crashInfo.startTime));
         addDetail("Crashed", QString::fromStdString(crashInfo.timestamp));
         addDetail("Log File", QString::fromStdString(crashInfo.logPath));
 
-        layout->addWidget(detailsWidget);
-
-        QWidget* lcdWidget = new QWidget();
-        QVBoxLayout* lcdLayout = new QVBoxLayout(lcdWidget);
-        lcdLayout->setAlignment(Qt::AlignCenter);
-        lcdLayout->setSpacing(5);
+        rightLayout->addSpacing(20);
 
         QLabel* sessLabel = new QLabel("<b>Session Duration:</b>");
-        sessLabel->setAlignment(Qt::AlignCenter);
-        lcdLayout->addWidget(sessLabel);
+        rightLayout->addWidget(sessLabel);
 
         long long ms = crashInfo.sessionDurationMs;
         QString timerDisplay = QString("%1:%2:%3.%4")
@@ -231,24 +252,22 @@ private:
         lcd->display(timerDisplay);
         lcd->setMinimumHeight(70);
         lcd->setMaximumHeight(100);
-        lcdLayout->addWidget(lcd);
+        rightLayout->addWidget(lcd);
 
         QLabel* formatLabel = new QLabel("(HH:MM:SS.CS)");
-        formatLabel->setAlignment(Qt::AlignCenter);
         formatLabel->setStyleSheet("color: gray; font-size: 10px;");
-        lcdLayout->addWidget(formatLabel);
+        rightLayout->addWidget(formatLabel);
 
-        layout->addWidget(lcdWidget);
-        layout->addStretch();
+        rightLayout->addStretch();
+        mainLayout->addWidget(rightWidget);
 
         return page;
     }
-
     inline QWidget* createCrashReporterPage() {
         QWidget* page = new QWidget();
-        QVBoxLayout* layout = new QVBoxLayout(page);
-        layout->setContentsMargins(15, 15, 15, 15);
-        layout->setSpacing(12);
+        QVBoxLayout* mainLayout = new QVBoxLayout(page);
+        mainLayout->setContentsMargins(15, 15, 15, 15);
+        mainLayout->setSpacing(12);
 
         QString titleText = windowTitle.isEmpty() ?
                                 QString::fromStdString(crashInfo.executableName) + " has crashed" :
@@ -256,17 +275,20 @@ private:
 
         QLabel* title = new QLabel("<h2>" + titleText + "</h2>");
         title->setWordWrap(true);
-        layout->addWidget(title);
+        mainLayout->addWidget(title);
 
         QLabel* desc = new QLabel(
             "The application encountered a fatal error and needs to close. "
             "Below is the stack trace that may help identify the issue.");
         desc->setWordWrap(true);
         desc->setStyleSheet("color: #555;");
-        layout->addWidget(desc);
+        mainLayout->addWidget(desc);
 
-        layout->addSpacing(10);
-        layout->addWidget(new QLabel("<b>Stack Trace:</b>"));
+        mainLayout->addSpacing(10);
+        mainLayout->addWidget(new QLabel("<b>Stack Trace:</b>"));
+
+        QHBoxLayout* loggerButtonsLayout = new QHBoxLayout();
+        loggerButtonsLayout->setSpacing(20);
 
         QTextEdit* stackText = new QTextEdit();
         stackText->setReadOnly(true);
@@ -278,68 +300,59 @@ private:
             stackText->setPlainText(QString::fromStdString(crashInfo.stackTrace));
         }
         stackText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        stackText->setMinimumHeight(200);
-        layout->addWidget(stackText, 1);
+        loggerButtonsLayout->addWidget(stackText, 1);
 
-        QHBoxLayout* btnLayout = new QHBoxLayout();
-        btnLayout->setSpacing(10);
+        QWidget* buttonsWidget = new QWidget();
+        buttonsWidget->setFixedWidth(120);
+        QVBoxLayout* buttonsLayout = new QVBoxLayout(buttonsWidget);
+        buttonsLayout->setContentsMargins(0, 0, 0, 0);
+        buttonsLayout->setSpacing(9);
+        QPushButton* restartBtn = new QPushButton("Restart");
+        restartBtn->setIcon(QIcon::fromTheme("system-reboot"));
+        restartBtn->setMinimumHeight(81);
+        restartBtn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+        restartBtn->setStyleSheet(
+            "QPushButton {"
+            "    font-weight: bold;"
+            "}"
+            "QPushButton:hover {"
+            "    border: 2px solid #00C70A;"
+            "    border-radius: 4px;"
 
-        QPushButton* restartBtn = new QPushButton("Restart Application");
-        restartBtn->setIcon(QIcon::fromTheme("view-refresh"));
-        restartBtn->setMinimumHeight(45);
-        restartBtn->setStyleSheet("QPushButton { font-weight: bold; }");
-        connect(restartBtn, &QPushButton::clicked, this, &COSEC::restartApplication);
+            "}"
+            );
 
         QPushButton* closeBtn = new QPushButton("Close");
-        closeBtn->setIcon(QIcon::fromTheme("window-close"));
-        closeBtn->setMinimumHeight(45);
-        connect(closeBtn, &QPushButton::clicked, this, &COSEC::closeApplication);
+        closeBtn->setIcon(QIcon::fromTheme("process-stop"));
+        closeBtn->setMinimumHeight(81);
+        closeBtn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+        closeBtn->setStyleSheet(
+            "QPushButton {"
+            "    font-weight: bold;"
+            "}"
+            "QPushButton:hover {"
+            "    border: 2px solid #C70000;"
+            "    border-radius: 4px;"
 
-        btnLayout->addWidget(restartBtn);
-        btnLayout->addWidget(closeBtn);
+            "}"
+            );
 
-        layout->addLayout(btnLayout);
-        return page;
-    }
-
-private slots:
-    inline void saveLogAs() {
-        QString ts = QString::fromStdString(crashInfo.timestamp)
-        .replace("/", "").replace(" ", "_").replace(":", "");
-
-        QString defName = QString::fromStdString(crashInfo.executableName) + "_crash_" + ts + ".log";
-        QString fname = QFileDialog::getSaveFileName(this, "Save Crash Log As",
-                                                     QDir::homePath() + "/" + defName, "Log Files (*.log);;All Files (*)");
-
-        if (!fname.isEmpty()) {
-            QFile::copy(QString::fromStdString(crashInfo.logPath), fname) ?
-                QMessageBox::information(this, "Success", "Log file saved successfully.") :
-                QMessageBox::warning(this, "Error", "Failed to save log file.");
-        }
-    }
-
-    inline void openLogFolder() {
-        QFileInfo fi(QString::fromStdString(crashInfo.logPath));
-        if (!QDesktopServices::openUrl(QUrl::fromLocalFile(fi.absolutePath()))) {
-            QMessageBox::warning(this, "Error", "Failed to open log folder.");
-        }
-    }
-
-    inline void restartApplication() {
-        if (!applicationPath.isEmpty()) {
-            QProcess::startDetached(applicationPath, QStringList());
-            closeApplication();
-        } else {
-            QMessageBox::warning(this, "Error", "Cannot restart application: path unknown.");
-        }
-    }
-
-    inline void closeApplication() {
-        accept();
-        QTimer::singleShot(100, []() {
-            QApplication::quit();
-            std::exit(0);
+        connect(restartBtn, &QPushButton::clicked, [this]() {
+            COS::Tri_reset();
         });
+
+        connect(closeBtn, &QPushButton::clicked, [this]() {
+            accept();
+            COS::Tri_term();
+        });
+
+        buttonsLayout->addWidget(restartBtn, 1);
+        buttonsLayout->addWidget(closeBtn, 1);
+
+        loggerButtonsLayout->addWidget(buttonsWidget);
+        mainLayout->addLayout(loggerButtonsLayout, 1);
+
+        return page;
     }
 
 public:
@@ -348,7 +361,6 @@ public:
         setupUI();
     }
 };
-
 inline void CrashOrgMan::handleCrash(const CrashInfo& crashInfo) {
     if (crashHandlerActive) {
         std::cerr << "Recursive crash detected, terminated." << std::endl;
@@ -357,7 +369,7 @@ inline void CrashOrgMan::handleCrash(const CrashInfo& crashInfo) {
     crashHandlerActive = true;
 
     std::cout << "\nCrash handler called.\nSignal: " << crashInfo.signalName
-              << "\nTime: " << crashInfo.timestamp << "\nLog: " << crashInfo.logPath << std::endl;
+              << "\nTime: " << crashInfo.timestamp << std::endl;
 
     updateWindowInfo();
 

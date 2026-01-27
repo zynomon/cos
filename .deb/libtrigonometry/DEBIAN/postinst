@@ -2,6 +2,7 @@
 
 normal_install() {
     rm -rf /usr/include/trigonometry
+    rm -rf /usr/lib/cmake/Trig
 }
 
 echo "Final step,"
@@ -11,7 +12,7 @@ trap "echo; answer='n'" TIMEOUT  # Handle timeout
 
 (
     for ((i=timeout; i>0; i--)); do
-        printf "\rAre you Installing \"libtrigonometry\" for developing? (y/n) [%ds] \n" $i
+        printf "\rAre you Installing \"libtrigonometry\" for developing? (y/n) [%ds] \n>" $i
         sleep 1
     done
     kill -TERM $$  # Trigger timeout

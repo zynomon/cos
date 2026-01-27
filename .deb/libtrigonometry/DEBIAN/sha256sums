@@ -1,6 +1,0 @@
-364f3dec4d5197848ec295c701134d96cab563bb2c16a9187153d0ae57fe1002  usr/lib/trigonometry/libcos.so
-46ac775242b36c0ddaa1a6d8d6e491f6c928f593c61fb1a567aa147726567566  usr/lib/trigonometry/libcosec.so
-bd6167c37cf1ea6f8eb56d8e016063c2b83858d6fdb1c57461b8824de1dc3610  usr/include/trigonometry/cosec.h
-e95b5132acbd79bd8d05106c55b2f5fccdeff4d5f645b0b7abe9c1863d452890  usr/include/trigonometry/cos
-e95b5132acbd79bd8d05106c55b2f5fccdeff4d5f645b0b7abe9c1863d452890  usr/include/trigonometry/cosec
-usr/include/trigonometry/cos.h ../usr/include/trigonometry/cosec.h ../usr/include/trigonometry/cos ../usr/include/trigonometry/cosec ../usr/lib/trigonometry/libcos.so ../usr/lib/trigonometry/libcosec.so cdedffa54e355900884ed1fa7b0d60b24b9d232f20d3cc7aa1e331ed5678023f  ../usr/include/trigonometry/cos.h
