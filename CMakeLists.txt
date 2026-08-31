@@ -5,32 +5,38 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(GNUInstallDirs)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
-
-# CRASHNIGGER COS?COSEC
 add_library(crash SHARED
     CRASH/cos.cpp
     CRASH/cosec.cpp
     CRASH/cosec.h
     CRASH/cos.h
 )
+
+add_library(term SHARED
+    TERM/tan.cpp
+    TERM/tan.h
+)
+
 set_target_properties(crash PROPERTIES PREFIX "lib" OUTPUT_NAME "crash")
 target_link_libraries(crash PRIVATE Qt6::Core Qt6::Widgets)
 
+set_target_properties(term PROPERTIES PREFIX "lib" OUTPUT_NAME "term")
+target_link_libraries(term PRIVATE Qt6::Core)
+
 find_program(STRIP_EXECUTABLE strip)
 if(STRIP_EXECUTABLE)
-    add_custom_command(TARGET crash POST_BUILD
+    add_custom_command(TARGET crash term POST_BUILD
         COMMAND ${STRIP_EXECUTABLE} $<TARGET_FILE:crash>
-        COMMENT "Stripping file..."
+        COMMAND ${STRIP_EXECUTABLE} $<TARGET_FILE:term>
+        COMMENT "Stripping files..."
     )
 endif()
 
-# INstall 
-install(TARGETS crash
+install(TARGETS crash term
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/trigonometry
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/trigonometry
 )
 
-# use Debug profile <"  cmake --build . --config Debug   "> in terminal
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     install(FILES CRASH/cos.h CRASH/cosec.h
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/trigonometry/crash
@@ -43,11 +49,18 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/trigonometry/crash
         RENAME cosec
     )
+    install(FILES TERM/tan.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/trigonometry/term
+    )
+    install(FILES TERM/tan.cpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/trigonometry/term
+        RENAME tan
+    )
     install(FILES TrigConfig.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Trig/
     )
     install(FILES .deb/README.txt
-     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Trig/
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Trig/
     )
 endif()
 
@@ -56,7 +69,7 @@ include(InstallRequiredSystemLibraries)
 set(CPACK_PACKAGE_NAME "libtrigonometry")
 set(CPACK_PACKAGE_VENDOR "error.os")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-    "Contains COS (CXX) + COSEC (Qt) crash handling libraries"
+    "Contains COS (CXX) + COSEC (Qt) crash handling libraries and TERM library"
 )
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
@@ -72,3 +85,6 @@ set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
 )
 
 include(CPack)
+
+# use Debug profile <"  cmake --build . --config Debug "> in terminal to install development headers along side.
+
