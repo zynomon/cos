@@ -1,0 +1,9 @@
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/terminal-angulation-navigator.dir
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/edit_cache.dir
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/rebuild_cache.dir
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/list_install_components.dir
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/install.dir
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/install/local.dir
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/install/strip.dir
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/terminal-angulation-navigator_autogen_timestamp_deps.dir
+/home/zynomon/Documents/git/libtrigonometry/.test-trig/COT&TAN/build/Desktop-Debug/CMakeFiles/terminal-angulation-navigator_autogen.dir
