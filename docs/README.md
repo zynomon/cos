@@ -42,7 +42,7 @@ logger.getLogContent();      // Returns all captured output
 #### CMAKE LINKING ID : crash (link in cmake using  Trig::crash )
 
 __***Description:***__ captures cos and executes a gui crash reporter
-__***Screenshots:**__ This application fetches icon for the window , and more.
+__***Screenshots:***__ This application fetches icon for the window , and more.
 <img width="729" height="515" alt="image" src="https://github.com/user-attachments/assets/042bda71-a8e7-481e-a31d-74771b2480ed" />
 <img width="766" height="519" alt="image" src="https://github.com/user-attachments/assets/2d54f818-f633-4888-82e0-c5d97fab7cbe" />
 <img width="765" height="522" alt="image" src="https://github.com/user-attachments/assets/437b912f-4a0c-42a4-84a0-21db0e34340f" />
@@ -56,6 +56,38 @@ __***Screenshots:**__ This application fetches icon for the window , and more.
 3. use `#include cosec` in your project
 4. in your mainwindowclass ( where your window title defined, add a line `REG_CRASH();` that's it
 
-**more coming soon..***
+
+<hr>
+
+## TAN <sub>Terminal Angulation Navigator</sub>  
+#### Technology : Raw C++ 
+#### OS : Linux, BSD, macOS, Windows
+#### CMAKE LINKING ID : TERM (link in cmake using Trig::TERM)
+
+__***Description:***__ automatically detects and launches terminal emulators across different platforms. Scans for common terminals (konsole, gnome-terminal, xterm, wt.exe, etc.) and caches the result in `~/.config/error.os/tan`. Provides methods to run commands in new terminal windows with or without elevated privileges.
+
+__***Common uses:***__ 
+```cpp
+// Get detected terminal path
+std::string termPath = TAN::term_bin_path();
+
+// Run command in new terminal (non-blocking)
+TAN::tanrun("python3 script.py");
+
+// Run command with sudo/runas
+TAN::tanrunsu("apt-get update");
+
+// Run and wait for completion (Linux/Unix only)
+int exitCode;
+TAN::tanrunWait("build.sh", &exitCode);
+```
+
+### steps;
+1. type `find_packages(Trig)`
+2. Link your project against `Trig::TERM`
+3. use `#include "tan.h"` in your project
+4. Use `TAN::tanrun("your command")` to open terminal
+
 ---
- 
+
+**more coming soon..**
