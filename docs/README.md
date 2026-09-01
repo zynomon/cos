@@ -1,4 +1,4 @@
-# Libtrigonometry
+# <img width="64" height="64" alt="w" src="https://github.com/user-attachments/assets/6dfd1ddf-e90a-4e64-9005-3656c661022b" />  Libtrigonometry
 
 ---
 
